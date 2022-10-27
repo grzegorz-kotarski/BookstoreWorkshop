@@ -1,0 +1,56 @@
+# Make sure to create volume first: docker volume create postgres_data
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+    environment:
+      POSTGRES_PASSWORD: ${WORKSHOP_POSTGRES_PASSWORD}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${WORKSHOP_POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    volumes:
+      - pgadmin4_data:/pgadmin4/servers.json
+    ports:
+     - ${WORKSHOP_PGADMIN_PORT}:5001
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${WORKSHOP_PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${WORKSHOP_PGADMIN_PASSWORD}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+  
+  workshop:
+    image: workshop/app
+    # build: . 
+    ports:
+      - ${WORKSHOP_PORT:-5000}:5000
+    restart: unless-stopped
+    environment:
+      WEB_CONCURRENCY: ${WORKSHOP_CONCURRENCY}
+      WORKSHOP_DB_URL: postgresql+psycopg2://${WORKSHOP_POSTGRES_USER}:${WORKSHOP_POSTGRES_PASSWORD}@postgres/${WORKSHOP_DB_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  pgadmin4_data:
+  postgres_data:
+    external: true
