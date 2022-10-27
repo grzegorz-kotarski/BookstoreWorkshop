@@ -54,26 +54,6 @@ async def api_add_book(book_data: BookSchema, db_session: Session = Depends(get_
     return add_book(db_session, book_data)
 
 
-
-
-# @app.get(f"/api/{SERVICE_API_VERSION}/files/{{measurement}}", response_model=List[FileORMSchema])
-# async def api_get_files(measurement: int, db_session: Session = Depends(get_db_session), skip: int=0, limit: int=100):
-#     "Return payload for given configuration name"
-#     return get_files(db_session, measurement, skip=skip, limit=limit)
-
-
-# @app.post(f"/api/{SERVICE_API_VERSION}/file")
-# async def api_add_file(file_model: FileSchema, db_session: Session = Depends(get_db_session)):
-#     "Return payload for given configuration name"
-#     add_file(db_session, file_model)
-
-
-# @app.post(f"/api/{SERVICE_API_VERSION}/files")
-# async def api_add_files(files_model: FilesSchema, db_session: Session = Depends(get_db_session)):
-#     "Return payload for given configuration name"
-#     return add_files(db_session, files_model)
-
-
 @app.get("/", response_class=PlainTextResponse)
 async def root():
     "Return name and version"
