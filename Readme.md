@@ -11,11 +11,11 @@
 
 ### Stop database
 
-    docker stop 3bb8e1d922f8
+    docker stop <container_id>
 
 ### Start stopped database
 
-    docker start 3bb8e1d922f8
+    docker start <container_id>
 
 ## Application
 
